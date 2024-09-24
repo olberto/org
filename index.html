@@ -349,7 +349,7 @@
             }, 
             function(error) {
                 console.error('Erro ao obter localização: ', error.message);
-                userLocation = { lat: -23.55052, lng: -46.633309 }; // São Paulo como exemplo
+                userLocation = { lat: -27.641099533491374, lng: -48.67891214274231 }; // Centro de Palhoça
                 map = L.map('map').setView([userLocation.lat, userLocation.lng], 12);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 18,
