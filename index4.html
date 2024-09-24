@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organograma Interativo com Múltiplos Subníveis</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .breadcrumb {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .breadcrumb a {
+            color: #fff;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .organogram {
+            text-align: center;
+        }
+
+        .level {
+            display: none;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .level.active {
+            display: flex;
+        }
+
+        .option {
+            background-color: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            width: 200px;
+            text-align: center;
+        }
+
+        .back-button {
+            background-color: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            margin: 20px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .back-button.active {
+            display: block;
+        }
+
+        .results {
+            margin-top: 20px;
+            text-align: left;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <div class="breadcrumb" id="breadcrumb"></div>
+
+    <div id="organogram" class="organogram">
+        <div id="level-1" class="level active">
+            <div class="option" onclick="selectOption('1', 'Opção 1', 2)">Opção 1</div>
+            <div class="option" onclick="selectOption('2', 'Opção 2', 2)">Opção 2</div>
+            <div class="option" onclick="selectOption('3', 'Opção 3', 2)">Opção 3</div>
+            <div class="option" onclick="selectOption('4', 'Opção 4', 2)">Opção 4</div>
+        </div>
+        <!-- Os subníveis serão gerados dinamicamente via JavaScript -->
+    </div>
+
+    <button id="back-button" class="back-button" onclick="goBack()">Voltar</button>
+
+    <div id="results" class="results"></div>
+
+    <script>
+        let currentLevel = 1;
+        const breadcrumb = document.getElementById('breadcrumb');
+        const historyStack = [];
+
+        const optionsData = {
+            1: [
+                { id: '1-1', text: 'Sub-Opção 1.1', nextLevel: 2 },
+                { id: '1-2', text: 'Sub-Opção 1.2', nextLevel: 2 }
+            ],
+            2: [
+                { id: '2-1', text: 'Sub-Opção 2.1', nextLevel: 3 },
+                { id: '2-2', text: 'Sub-Opção 2.2', nextLevel: 3 }
+            ],
+            3: [
+                { id: '3-1', text: 'Sub-Opção 3.1', nextLevel: 4 },
+                { id: '3-2', text: 'Sub-Opção 3.2', nextLevel: 4 }
+            ],
+            4: [
+                { id: '4-1', text: 'Sub-Opção 4.1', nextLevel: 5 },
+                { id: '4-2', text: 'Sub-Opção 4.2', nextLevel: 5 }
+            ],
+            5: [
+                { id: '5-1', text: 'Sub-Opção 5.1', nextLevel: 6 },
+                { id: '5-2', text: 'Sub-Opção 5.2', nextLevel: 6 }
+            ],
+            6: [
+                { id: '6-1', text: 'Final 1', nextLevel: null },
+                { id: '6-2', text: 'Final 2', nextLevel: null }
+            ]
+        };
+
+        function selectOption(codigo, optionText, nextLevel) {
+            historyStack.push({ codigo, text: optionText, level: currentLevel });
+            updateBreadcrumb();
+            if (nextLevel) {
+                showNextLevel(nextLevel);
+            } else {
+                finalizarEscolha(codigo);
+            }
+        }
+
+        function showNextLevel(level) {
+            const organogram = document.getElementById('organogram');
+            const newLevelDiv = document.createElement('div');
+            newLevelDiv.id = `level-${level}`;
+            newLevelDiv.classList.add('level', 'active');
+            organogram.appendChild(newLevelDiv);
+
+            optionsData[level].forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('option');
+                optionDiv.textContent = option.text;
+                optionDiv.onclick = () => selectOption(option.id, option.text, option.nextLevel);
+                newLevelDiv.appendChild(optionDiv);
+            });
+
+            document.getElementById(`level-${currentLevel}`).classList.remove('active');
+            currentLevel = level;
+            updateBackButton();
+        }
+
+        function goBack() {
+            if (currentLevel > 1) {
+                document.getElementById(`level-${currentLevel}`).remove();
+                currentLevel--;
+                historyStack.pop();
+                document.getElementById(`level-${currentLevel}`).classList.add('active');
+                updateBreadcrumb();
+                updateBackButton();
+            }
+        }
+
+        function updateBreadcrumb() {
+            breadcrumb.innerHTML = '';
+            historyStack.forEach((item, index) => {
+                breadcrumb.innerHTML += `<a href="javascript:goToLevel(${index + 1})">${item.text}</a>`;
+                if (index < historyStack.length - 1) {
+                    breadcrumb.innerHTML += ' > ';
+                }
+            });
+        }
+
+        function goToLevel(level) {
+            while (currentLevel > level) {
+                goBack();
+            }
+        }
+
+        function updateBackButton() {
+            const backButton = document.getElementById('back-button');
+            backButton.classList.toggle('active', currentLevel > 1);
+        }
+
+        function finalizarEscolha(codigoServico) {
+            buscarDados(codigoServico);
+        }
+
+        function buscarDados(codigo) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'buscar_empresas.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.getElementById('results').innerHTML = xhr.responseText;
+                } else {
+                    console.error('Erro na requisição');
+                }
+            };
+            xhr.send(JSON.stringify({ codigoServico: codigo }));
+        }
+    </script>
+</body>
+</html>

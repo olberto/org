@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Organizada</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1c1c1c, #000);
+            color: #f0f0f0;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #e0e0e0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .breadcrumb {
+            margin: 20px 0;
+            font-size: 16px;
+            color: #f0f0f0;
+            letter-spacing: 1px;
+        }
+
+        .breadcrumb a {
+            color: #ff6f61;
+            text-decoration: none;
+            margin-right: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb a:hover {
+            color: #ffd700;
+        }
+
+        .organogram {
+            text-align: center;
+        }
+
+        .level {
+            display: none;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .level.active {
+            display: flex;
+        }
+
+        .option {
+            background-color: rgba(255, 111, 97, 0.1);
+            color: #ff6f61;
+            border: 2px solid #ff6f61;
+            padding: 15px 25px;
+            margin: 15px;
+            cursor: pointer;
+            width: 250px;
+            text-align: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 8px;
+            font-size: 1.1em;
+        }
+
+        .option:hover {
+            background-color: #ff6f61;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .back-button {
+            background-color: transparent;
+            color: #ff6f61;
+            border: 2px solid #ff6f61;
+            padding: 10px 30px;
+            margin: 20px;
+            cursor: pointer;
+            display: none;
+            font-size: 1em;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .back-button.active {
+            display: block;
+        }
+
+        .back-button:hover {
+            background-color: #ff6f61;
+            color: #fff;
+        }
+
+        .container {
+            display: flex;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        #map {
+            flex: 0 0 60%;
+            height: 100%;
+            border: 2px solid #ff6f61;
+            border-radius: 10px;
+            margin-right: 10px;
+        }
+
+        .results-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(255, 111, 97, 0.1);
+            border: 2px solid #ff6f61;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+
+        .option, .back-button, .breadcrumb a {
+            transition: all 0.3s ease;
+        }
+
+        /* Loader animado */
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #ff6f61;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mensagem de IA */
+        .ia-message {
+            font-size: 0.9em;
+            color: #ff6f61;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+</head>
+<body>
+    <h1><center>O que voc&ecirc; procura hoje?</center></h1>
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div id="organogram" class="organogram">
+        <div id="level-1" class="level active"></div>
+    </div>
+    <button id="back-button" class="back-button" onclick="goBack()">Voltar</button>
+    
+    <div class="container">
+        <div id="map"></div>
+        <div class="results-container">
+            <div id="results" class="results"></div>
+            <div id="loader" class="loader" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="ia-message">
+        Este sistema utiliza intelig&ecirc;ncia artificial para melhorar sua experi&ecirc;ncia e aprender com seu uso.
+    </div>
+
+    <script>
+        let currentLevel = 1;
+        const breadcrumb = document.getElementById('breadcrumb');
+        const historyStack = [];
+        let finalCodigoServico = null;
+        let userLocation = null;
+        let markers = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOptions(1, null);
+        });
+
+        function loadOptions(level, parentId) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'carregar_opcoes.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const options = JSON.parse(xhr.responseText);
+                    const levelDiv = document.getElementById(`level-${level}`);
+
+                    if (options.length > 0) {
+                        levelDiv.innerHTML = '';
+                        options.forEach(option => {
+                            const optionDiv = document.createElement('div');
+                            optionDiv.classList.add('option');
+                            optionDiv.textContent = option.nome;
+                            optionDiv.onclick = () => selectOption(option.id, option.nome, level + 1, option.codigo);
+                            levelDiv.appendChild(optionDiv);
+                        });
+                    } else {
+                        finalizarEscolha();
+                    }
+                } else {
+                    console.error('Erro ao carregar as op&ccedil;&otilde;es');
+                }
+            };
+            xhr.send(JSON.stringify({ nivel: level, parent_id: parentId }));
+        }
+
+        function selectOption(id, optionText, nextLevel, codigoServico) {
+            historyStack.push({ id, text: optionText, level: currentLevel });
+            finalCodigoServico = codigoServico;
+            updateBreadcrumb();
+
+            if (nextLevel <= 6) {
+                const newLevelDiv = document.createElement('div');
+                newLevelDiv.id = `level-${nextLevel}`;
+                newLevelDiv.classList.add('level');
+                document.getElementById('organogram').appendChild(newLevelDiv);
+                document.getElementById(`level-${currentLevel}`).classList.remove('active');
+                newLevelDiv.classList.add('active');
+                currentLevel = nextLevel;
+                loadOptions(nextLevel, id);
+            } else {
+                finalizarEscolha();
+            }
+            updateBackButton();
+        }
+
+        function finalizarEscolha() {
+            if (finalCodigoServico && userLocation) {
+                showLoader();
+                buscarDados(finalCodigoServico, userLocation);
+            } else {
+                console.error('C&oacute;digo do servi&ccedil;o ou localiza&ccedil;&atilde;o n&atilde;o encontrado.');
+            }
+        }
+
+        function buscarDados(codigo, location) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'buscar_empresas.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                hideLoader();
+                if (xhr.status === 200) {
+                    const resultados = JSON.parse(xhr.responseText);
+                    if (resultados && Array.isArray(resultados) && resultados.length > 0) {
+                        document.getElementById('results').innerHTML = '';
+
+                        resultados.forEach(resultado => {
+                            const empresaLink = document.createElement('a');
+                            empresaLink.href = 'javascript:void(0);';
+                            empresaLink.textContent = resultado.company;
+                            empresaLink.onclick = () => centralizarNoMapa(resultado.latitude, resultado.longitude);
+                            
+                            const resultItem = document.createElement('p');
+                            resultItem.appendChild(empresaLink);
+                            document.getElementById('results').appendChild(resultItem);
+                        });
+
+                        adicionarMarcadores(resultados);
+                    } else {
+                        document.getElementById('results').innerHTML = '<p>Nenhuma empresa encontrada.</p>';
+                    }
+                } else {
+                    console.error('Erro na requisi&ccedil;&atilde;o');
+                }
+            };
+            xhr.send(JSON.stringify({
+                codigoServico: codigo,
+                latitude: location.lat,
+                longitude: location.lng
+            }));
+        }
+
+        function updateBreadcrumb() {
+            breadcrumb.innerHTML = '';
+            historyStack.forEach((item, index) => {
+                breadcrumb.innerHTML += `<a href="javascript:goToLevel(${index + 1})">${item.text}</a>`;
+                if (index < historyStack.length - 1) {
+                    breadcrumb.innerHTML += ' > ';
+                }
+            });
+        }
+
+        function goToLevel(level) {
+            while (currentLevel > level) {
+                goBack();
+            }
+        }
+
+        function goBack() {
+            if (currentLevel > 1) {
+                document.getElementById(`level-${currentLevel}`).remove();
+                currentLevel--;
+                historyStack.pop();
+                finalCodigoServico = historyStack[historyStack.length - 1]?.codigoServico || null;
+                document.getElementById(`level-${currentLevel}`).classList.add('active');
+                updateBreadcrumb();
+                updateBackButton();
+            }
+        }
+
+        function updateBackButton() {
+            const backButton = document.getElementById('back-button');
+            backButton.classList.toggle('active', currentLevel > 1);
+        }
+
+        let map;
+
+        function initMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    map = L.map('map').setView([userLocation.lat, userLocation.lng], 12);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                    }).addTo(map);
+
+                    const userMarker = L.marker([userLocation.lat, userLocation.lng]).addTo(map)
+                        .bindPopup("Sua localiza&ccedil;&atilde;o")
+                        .openPopup();
+
+                }, function() {
+                    console.error('Não foi possível obter a localização.');
+                });
+            }
+        }
+
+        function centralizarNoMapa(lat, lng) {
+            map.setView([lat, lng], 14);
+        }
+
+        function adicionarMarcadores(empresas) {
+            empresas.forEach(empresa => {
+                const marker = L.marker([empresa.latitude, empresa.longitude]).addTo(map)
+                    .bindPopup(`${empresa.company}<br>Pre&ccedil;o: ${empresa.price}`);
+                    
+                markers[empresa.company] = marker;
+            });
+        }
+
+        function showLoader() {
+            document.getElementById('loader').style.display = 'block';
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        initMap();
+    </script>
+</body>
+</html>

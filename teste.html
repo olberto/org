@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa e Organograma de Empresas</title>
+    <link rel="stylesheet" href="map.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- Camada invisível para controles e organograma -->
+    <div class="overlay">
+        <div class="top-bar">
+            <div class="breadcrumb" id="breadcrumb">Você está aqui: </div>
+            <button class="button" id="back-button" onclick="goBack()">Voltar</button>
+        </div>
+
+        <div class="organograma-container">
+            <div id="organograma">
+                <!-- Organograma será carregado aqui -->
+            </div>
+        </div>
+
+        <div class="bottom-bar">
+            <button class="button" onclick="exibirResultados()">Mostrar Resultados</button>
+        </div>
+    </div>
+
+    <script src="organograma.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

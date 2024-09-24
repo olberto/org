@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Organizada</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .breadcrumb {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .breadcrumb a {
+            color: #fff;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .organogram {
+            text-align: center;
+        }
+
+        .level {
+            display: none;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .level.active {
+            display: flex;
+        }
+
+        .option {
+            background-color: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            width: 200px;
+            text-align: center;
+        }
+
+        .back-button {
+            background-color: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            margin: 20px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .back-button.active {
+            display: block;
+        }
+
+        .results {
+            margin-top: 20px;
+            text-align: left;
+            width: 80%;
+        }
+        
+         #map {
+            height: 80vh;
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+</head>
+<body>
+<h1>O que voc&ecirc; procura hoje?</h1>
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div id="organogram" class="organogram">
+        <div id="level-1" class="level active"></div>
+    </div>
+    <button id="back-button" class="back-button" onclick="goBack()">Voltar</button>
+    
+    <div id="map"></div>
+    
+    <div id="results" class="results"></div>
+
+    <script>
+        let currentLevel = 1;
+const breadcrumb = document.getElementById('breadcrumb');
+const historyStack = [];
+let finalCodigoServico = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadOptions(1, null); // Carrega as opções do primeiro nível
+});
+
+function loadOptions(level, parentId) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'carregar_opcoes.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            const options = JSON.parse(xhr.responseText);
+            const levelDiv = document.getElementById(`level-${level}`);
+
+            if (options.length > 0) {
+                levelDiv.innerHTML = '';
+                options.forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.classList.add('option');
+                    optionDiv.textContent = option.nome;
+                    optionDiv.onclick = () => selectOption(option.id, option.nome, level + 1, option.codigo);
+                    levelDiv.appendChild(optionDiv);
+                });
+            } else {
+                finalizarEscolha(); // Nenhuma opção disponível, finalizar
+            }
+        } else {
+            console.error('Erro ao carregar as opções');
+        }
+    };
+    xhr.send(JSON.stringify({ nivel: level, parent_id: parentId }));
+}
+
+function selectOption(id, optionText, nextLevel, codigoServico) {
+    historyStack.push({ id, text: optionText, level: currentLevel });
+    finalCodigoServico = codigoServico;  // Armazena o código de serviço da opção selecionada
+    updateBreadcrumb();
+
+    if (nextLevel <= 6) {
+        const newLevelDiv = document.createElement('div');
+        newLevelDiv.id = `level-${nextLevel}`;
+        newLevelDiv.classList.add('level');
+        document.getElementById('organogram').appendChild(newLevelDiv);
+        document.getElementById(`level-${currentLevel}`).classList.remove('active');
+        newLevelDiv.classList.add('active');
+        currentLevel = nextLevel;
+        loadOptions(nextLevel, id); // Use `id` para carregar o próximo nível
+    } else {
+        finalizarEscolha(); // Use o código de serviço armazenado
+    }
+    updateBackButton();
+}
+
+function finalizarEscolha() {
+    if (finalCodigoServico) {
+        buscarDados(finalCodigoServico);
+    } else {
+        console.error('Código do serviço não encontrado.');
+    }
+}
+
+function buscarDados(codigo) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'buscar_empresas.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            document.getElementById('results').innerHTML = xhr.responseText;
+        } else {
+            console.error('Erro na requisição');
+        }
+    };
+    xhr.send(JSON.stringify({ codigoServico: codigo }));
+}
+
+function updateBreadcrumb() {
+    breadcrumb.innerHTML = '';
+    historyStack.forEach((item, index) => {
+        breadcrumb.innerHTML += `<a href="javascript:goToLevel(${index + 1})">${item.text}</a>`;
+        if (index < historyStack.length - 1) {
+            breadcrumb.innerHTML += ' > ';
+        }
+    });
+}
+
+function goToLevel(level) {
+    while (currentLevel > level) {
+        goBack();
+    }
+}
+
+function goBack() {
+    if (currentLevel > 1) {
+        document.getElementById(`level-${currentLevel}`).remove();
+        currentLevel--;
+        historyStack.pop();
+        finalCodigoServico = historyStack[historyStack.length - 1]?.codigoServico || null;
+        document.getElementById(`level-${currentLevel}`).classList.add('active');
+        updateBreadcrumb();
+        updateBackButton();
+    }
+}
+
+function updateBackButton() {
+    const backButton = document.getElementById('back-button');
+    backButton.classList.toggle('active', currentLevel > 1);
+}
+
+let map;
+
+    function initMap() {
+        // Pega a localização do usuário
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                // Cria o mapa centralizado na localização do usuário
+                map = L.map('map').setView([userLocation.lat, userLocation.lng], 12);
+
+                // Adiciona camada do OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                // Adiciona um marcador para o usuário
+                L.marker([userLocation.lat, userLocation.lng]).addTo(map)
+                    .bindPopup('Voc&ecirc; est&aacute; aqui')
+                    .openPopup();
+
+                // Função para adicionar marcadores das empresas
+                carregarEmpresasNoMapa(userLocation);
+
+            }, function() {
+                alert("Erro ao buscar localização do usuário.");
+            });
+        } else {
+            alert("Geolocalização não é suportada neste navegador.");
+        }
+    }
+
+    function carregarEmpresasNoMapa(userLocation) {
+        // Envia a localização do usuário e recebe as empresas do PHP
+        fetch('buscar_empresas.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                latitude: userLocation.lat,
+                longitude: userLocation.lng
+            })
+        })
+        .then(response => response.json())
+        .then(empresas => {
+            empresas.forEach(empresa => {
+                const empresaLocation = {
+                    lat: parseFloat(empresa.latitude),
+                    lng: parseFloat(empresa.longitude)
+                };
+
+                // Adiciona marcadores para cada empresa
+                L.marker([empresaLocation.lat, empresaLocation.lng]).addTo(map)
+                    .bindPopup(`${empresa.nome} - Preço: R$${empresa.price}`);
+            });
+        })
+        .catch(error => console.error('Erro ao carregar empresas:', error));
+    }
+
+    window.onload = initMap;
+
+    </script>
+</body>
+</html>
