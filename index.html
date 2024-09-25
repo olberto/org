@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Organizada</title>
     <style>
-        body {
+       body {
         margin: 0;
         height: 100vh;
         display: flex;
@@ -133,31 +133,35 @@
         width: 100%;
         height: 100%;
         z-index: 2; /* Coloca a camada de sobreposição acima do mapa */
-        background: rgba(0, 0, 0, 0.5); /* Transparência para visualizar o mapa por baixo */
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
         padding-top: 20px;
         color: #fff;
-        pointer-events: none; /* Permite interações com o mapa abaixo */
+        pointer-events: none; /* Permite cliques no mapa */
     }
 
     .results-container {
-        width: 90%; /* Ajusta a largura dos elementos para não ocupar toda a tela */
-        background: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente para destacar o texto */
-        padding: 8px; /* Reduz o padding */
-        border-radius: 8px;
-        margin-bottom: 15px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        pointer-events: auto; /* Permite interações */
+        position: absolute;
+        bottom: 0;
+        width: 100%; /* Largura completa, mas limitado à parte inferior */
+        background: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente */
+        padding: 10px;
+        border-radius: 8px 8px 0 0; /* Borda arredondada só em cima */
+        display: none; /* Oculto por padrão */
+        max-height: 30%; /* Limita o tamanho da área de resultados */
+        overflow-y: auto; /* Ativa o scroll se necessário */
+        z-index: 3;
+    }
+
+    .results-container.active {
+        display: block; /* Exibe a área de resultados após a escolha final */
     }
 
     .results {
-        margin-top: 20px;
-        padding: 20px;
+        margin-top: 10px;
+        padding: 10px;
         background-color: rgba(255, 111, 97, 0.1);
         border: 2px solid #ff6f61;
         border-radius: 10px;
@@ -191,7 +195,6 @@
         margin-top: 10px;
         text-align: center;
     }
-
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
