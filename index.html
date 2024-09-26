@@ -52,6 +52,7 @@
         padding: 10px;
         border-radius: 8px;
         margin-bottom: 15px;
+        pointer-events: auto; /* Permite interação com o organograma */
     }
 
     .level {
@@ -100,6 +101,7 @@
         font-size: 1em;
         transition: background-color 0.3s ease, color 0.3s ease;
         border-radius: 8px;
+        pointer-events: auto; /* Permite interação com o botão */
     }
 
     .back-button.active {
@@ -139,7 +141,12 @@
         align-items: center;
         padding-top: 20px;
         color: #fff;
-        pointer-events: none; /* Permite cliques no mapa */
+        pointer-events: none; /* Impede interação geral com o overlay */
+    }
+
+    #overlay .organogram, 
+    #overlay .back-button {
+        pointer-events: auto; /* Permite interação com os elementos desejados */
     }
 
     .results-container {
