@@ -397,6 +397,9 @@
                 navigator.geolocation.getCurrentPosition(
             function(position) {
                 // Sucesso
+                const userMarker = L.marker([userLocation.lat, userLocation.lng]).addTo(map)
+                        .bindPopup("Sua localiza&ccedil;&atilde;o")
+                        .openPopup();
             }, 
             function(error) {
                 console.error('Erro ao obter localização: ', error.message);
@@ -416,7 +419,8 @@
         function adicionarMarcadores(empresas) {
             empresas.forEach(empresa => {
                 const marker = L.marker([empresa.latitude, empresa.longitude]).addTo(map)
-                    .bindPopup(`${empresa.company}<br>Pre&ccedil;o: ${empresa.price}`);
+                    .bindPopup(`${empresa.company}<br>Pre&ccedil;o: ${empresa.price}`)
+                    .openPopup();
                     
                 markers[empresa.company] = marker;
             });
