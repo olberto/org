@@ -32,6 +32,8 @@
         font-size: 14px; /* Reduz o tamanho da fonte */
         color: #f0f0f0;
         letter-spacing: 1px;
+        z-index: 3; /* Garante que o breadcrumb esteja acima de outros elementos */
+        pointer-events: auto; /* Permite interação */
     }
 
     .breadcrumb a {
@@ -53,6 +55,11 @@
         border-radius: 8px;
         margin-bottom: 15px;
         pointer-events: auto; /* Permite interação com o organograma */
+        z-index: 2;
+    }
+
+    .organogram.hidden {
+        display: none; /* Esconde o organograma após a escolha final */
     }
 
     .level {
@@ -145,7 +152,9 @@
     }
 
     #overlay .organogram, 
-    #overlay .back-button {
+    #overlay .back-button,
+    #overlay .breadcrumb, 
+    #overlay .results-container {
         pointer-events: auto; /* Permite interação com os elementos desejados */
     }
 
@@ -208,6 +217,7 @@
 
 </head>
 <body>
+    <h1><center>O que voc&ecirc; procura hoje?</center></h1>
     <div class="container">
         <div id="map"></div>
     
@@ -295,6 +305,8 @@
             if (finalCodigoServico && userLocation) {
                 showLoader();
                 buscarDados(finalCodigoServico, userLocation);
+                document.querySelector('.organogram').classList.add('hidden');
+
             } else {
                 console.error('C&oacute;digo do servi&ccedil;o ou localiza&ccedil;&atilde;o n&atilde;o encontrado.');
             }
@@ -397,9 +409,6 @@
                 navigator.geolocation.getCurrentPosition(
             function(position) {
                 // Sucesso
-                const userMarker = L.marker([userLocation.lat, userLocation.lng]).addTo(map)
-                        .bindPopup("Sua localiza&ccedil;&atilde;o")
-                        .openPopup();
             }, 
             function(error) {
                 console.error('Erro ao obter localização: ', error.message);
