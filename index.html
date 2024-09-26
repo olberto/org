@@ -402,14 +402,14 @@
                         .bindPopup("Sua localiza&ccedil;&atilde;o")
                         .openPopup();
 
-                }, function() {
-                    console.error('N�o foi poss�vel obter a localiza��o.');
+                }, function(error) {
+                    /*console.error('N�o foi poss�vel obter a localiza��o.');*/
                 });
             }
-                navigator.geolocation.getCurrentPosition(
+            /*    navigator.geolocation.getCurrentPosition(
             function(position) {
                 // Sucesso
-            }, 
+            }, */
             function(error) {
                 console.error('Erro ao obter localização: ', error.message);
                 userLocation = { lat: -27.641099533491374, lng: -48.67891214274231 }; // Centro de Palhoça
