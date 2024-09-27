@@ -5,212 +5,203 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Organizada</title>
     <style>
-       body {
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        background-color: #000; /* Para garantir o fundo preto quando o mapa não carregar */
-    }
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: #000;
+        }
 
-    h1 {
-        margin-top: 20px;
-        font-size: 1.5em;
-        color: #e0e0e0;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
+        h1 {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #e0e0e0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
-    .breadcrumb {
-        width: 90%; /* Ajusta a largura dos elementos para não ocupar toda a tela */
-        background: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente para destacar o texto */
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        font-size: 14px; /* Reduz o tamanho da fonte */
-        color: #f0f0f0;
-        letter-spacing: 1px;
-        z-index: 3; /* Garante que o breadcrumb esteja acima de outros elementos */
-        pointer-events: auto; /* Permite interação */
-    }
+        .breadcrumb {
+            width: 90%;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #f0f0f0;
+            letter-spacing: 1px;
+            z-index: 3;
+            pointer-events: auto;
+        }
 
-    .breadcrumb a {
-        color: #ff6f61;
-        text-decoration: none;
-        margin-right: 5px; /* Reduz o espaçamento entre os links */
-        transition: color 0.3s ease;
-    }
+        .breadcrumb a {
+            color: #ff6f61;
+            text-decoration: none;
+            margin-right: 5px;
+            transition: color 0.3s ease;
+        }
 
-    .breadcrumb a:hover {
-        color: #ffd700;
-    }
+        .breadcrumb a:hover {
+            color: #ffd700;
+        }
 
-    .organogram {
-        text-align: center;
-        width: 70%; /* Ajusta a largura dos elementos para não ocupar toda a tela */
-        background: rgba(218, 216, 216, 0.801); /* Fundo semi-transparente para destacar o texto */
-        padding: 5px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        pointer-events: auto; /* Permite interação com o organograma */
-        z-index: 2;
-    }
+        .organogram {
+            text-align: center;
+            width: 70%;
+            background: rgba(218, 216, 216, 0.801);
+            padding: 5px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            pointer-events: auto;
+            z-index: 2;
+        }
 
-    .organogram.hidden {
-        display: none; /* Esconde o organograma após a escolha final */
-    }
+        .organogram.hidden {
+            display: none;
+        }
 
-    .level {
-        display: none;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 20px;
-    }
+        .level {
+            display: none;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
 
-    .level.active {
-        display: flex;
-    }
+        .level.active {
+            display: flex;
+        }
 
-    .option {
-        background-color: rgba(255, 111, 97, 0.1);
-        color: #ff6f61;
-        border: 2px solid #ff6f61;
-        padding: 10px 15px; /* Reduz o tamanho do botão */
-        margin: 10px; /* Reduz a margem */
-        cursor: pointer;
-        width: 150px; /* Menor largura */
-        text-align: center;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        border-radius: 8px;
-        font-size: 1.1em;
-    }
+        .option {
+            background-color: rgba(255, 111, 97, 0.1);
+            color: #ff6f61;
+            border: 2px solid #ff6f61;
+            padding: 10px 15px;
+            margin: 10px;
+            cursor: pointer;
+            width: 150px;
+            text-align: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 8px;
+            font-size: 1.1em;
+        }
 
-    .option:hover {
-        background-color: #ff6f61;
-        color: #fff;
-        transform: scale(1.05);
-    }
+        .option:hover {
+            background-color: #ff6f61;
+            color: #fff;
+            transform: scale(1.05);
+        }
 
-    .back-button {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 3;
-        background-color: transparent;
-        color: #ff6f61;
-        border: 2px solid #ff6f61;
-        padding: 8px 20px; /* Reduz o tamanho do botão */
-        margin: 15px; /* Ajuste menor de margem */
-        cursor: pointer;
-        display: none;
-        font-size: 1em;
-        transition: background-color 0.3s ease, color 0.3s ease;
-        border-radius: 8px;
-        pointer-events: auto; /* Permite interação com o botão */
-    }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 3;
+            background-color: transparent;
+            color: #ff6f61;
+            border: 2px solid #ff6f61;
+            padding: 8px 20px;
+            margin: 15px;
+            cursor: pointer;
+            display: none;
+            font-size: 1em;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 8px;
+            pointer-events: auto;
+        }
 
-    .back-button.active {
-        display: block;
-    }
+        .back-button.active {
+            display: block;
+        }
 
-    .back-button:hover {
-        background-color: #ff6f61;
-        color: #fff;
-    }
+        .back-button:hover {
+            background-color: #ff6f61;
+            color: #fff;
+        }
 
-    .container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh; /* Faz o mapa ocupar 100% da altura da tela */
-        overflow: hidden;
-    }
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    #map {
-        width: 100vw;
-        height: 100vh; /* O mapa agora ocupa toda a tela */
-        z-index: 1;
-    }
+        #map {
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
 
-    #overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 2; /* Coloca a camada de sobreposição acima do mapa */
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        padding-top: 20px;
-        color: #fff;
-        pointer-events: none; /* Impede interação geral com o overlay */
-    }
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 20px;
+            color: #fff;
+            pointer-events: none;
+        }
 
-    #overlay .organogram, 
-    #overlay .back-button,
-    #overlay .breadcrumb, 
-    #overlay .results-container {
-        pointer-events: auto; /* Permite interação com os elementos desejados */
-    }
+        #overlay .organogram, 
+        #overlay .back-button,
+        #overlay .breadcrumb, 
+        #overlay .results-container {
+            pointer-events: auto;
+        }
 
-    .results-container {
-        position: absolute;
-        bottom: 0;
-        width: 100%; /* Largura completa, mas limitado à parte inferior */
-        background: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente */
-        padding: 10px;
-        border-radius: 8px 8px 0 0; /* Borda arredondada só em cima */
-        display: none; /* Oculto por padrão */
-        max-height: 30%; /* Limita o tamanho da área de resultados */
-        overflow-y: auto; /* Ativa o scroll se necessário */
-        z-index: 3;
-    }
+        .results-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            display: none;
+            max-height: 30%;
+            overflow-y: auto;
+            z-index: 3;
+        }
 
-    .results-container.active {
-        display: block; /* Exibe a área de resultados após a escolha final */
-    }
+        .results-container.active {
+            display: block;
+        }
 
-    .results {
-        margin-top: 10px;
-        padding: 10px;
-        background-color: rgba(255, 111, 97, 0.1);
-        border: 2px solid #ff6f61;
-        border-radius: 10px;
-        overflow-y: auto;
-    }
+        .results {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(255, 111, 97, 0.1);
+            border: 2px solid #ff6f61;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
 
-    .option, .back-button, .breadcrumb a {
-        transition: all 0.3s ease;
-    }
+        .option, .back-button, .breadcrumb a {
+            transition: all 0.3s ease;
+        }
 
-    /* Loader animado */
-    .loader {
-        border: 8px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 8px solid #ff6f61;
-        width: 60px;
-        height: 60px;
-        animation: spin 1s linear infinite;
-        margin: 20px auto;
-    }
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #ff6f61;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Mensagem de IA */
-    .ia-message {
-        font-size: 0.9em;
-        color: #ff6f61;
-        margin-top: 10px;
-        text-align: center;
-    }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -227,10 +218,9 @@
                 <div id="level-1" class="level active"></div>
             </div>
     
-            <!-- Grupo de botões reduzidos e organizados -->
+            <!-- Grupo de botões -->
             <div class="button-group">
-                <button id="back-button" class="back-button" onclick="goBack()">Voltar</button>
-                <button class="back-button" onclick="showResults()">Resultados</button>
+                <button id="back-button" onclick="goBack()">Voltar</button>
             </div>
     
             <!-- Resultados e carregamento -->
@@ -240,6 +230,7 @@
             </div>
         </div>
     </div>        
+
     <script>
         let currentLevel = 1;
         const breadcrumb = document.getElementById('breadcrumb');
@@ -250,6 +241,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             loadOptions(1, null);
+            initMap(); // Inicializa o mapa ao carregar a página
         });
 
         function loadOptions(level, parentId) {
@@ -274,7 +266,7 @@
                         finalizarEscolha();
                     }
                 } else {
-                    console.error('Erro ao carregar as op&ccedil;&otilde;es');
+                    console.error('Erro ao carregar as opções');
                 }
             };
             xhr.send(JSON.stringify({ nivel: level, parent_id: parentId }));
@@ -304,126 +296,79 @@
             if (finalCodigoServico && userLocation) {
                 showLoader();
                 buscarDados(finalCodigoServico, userLocation);
-                document.querySelector('.organogram').classList.add('hidden');
-
+                document.querySelector('.results-container').classList.add('active');
             } else {
-                console.error('C&oacute;digo do servi&ccedil;o ou localiza&ccedil;&atilde;o n&atilde;o encontrado.');
+                console.error('Erro: Código de serviço ou localização não encontrado.');
             }
         }
 
-        function buscarDados(codigo, location) {
+        function buscarDados(codigoServico, location) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'buscar_empresas.php', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
                 hideLoader();
                 if (xhr.status === 200) {
-                    const resultados = JSON.parse(xhr.responseText);
-                    if (resultados && Array.isArray(resultados) && resultados.length > 0) {
-                        document.getElementById('results').innerHTML = '';
-
-                        resultados.forEach(resultado => {
-                            const empresaLink = document.createElement('a');
-                            empresaLink.href = 'javascript:void(0);';
-                            empresaLink.textContent = resultado.company;
-                            empresaLink.onclick = () => centralizarNoMapa(resultado.latitude, resultado.longitude);
-                            
-                            const resultItem = document.createElement('p');
-                            resultItem.appendChild(empresaLink);
-                            document.getElementById('results').appendChild(resultItem);
+                    const results = JSON.parse(xhr.responseText);
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '';
+                    if (results.length > 0) {
+                        results.forEach(result => {
+                            const resultDiv = document.createElement('div');
+                            resultDiv.textContent = `${result.nome} - ${result.preco}`;
+                            resultDiv.classList.add('result');
+                            resultDiv.onclick = () => moveToLocation(result.latitude, result.longitude, result.nome, result.preco);
+                            resultsDiv.appendChild(resultDiv);
+                            // Adiciona marcador ao mapa
+                            addMarker(result.latitude, result.longitude, result.nome, result.preco);
                         });
-
-                        adicionarMarcadores(resultados);
                     } else {
-                        document.getElementById('results').innerHTML = '<p>Nenhuma empresa encontrada.</p>';
+                        resultsDiv.textContent = 'Nenhuma empresa encontrada.';
                     }
                 } else {
-                    console.error('Erro na requisi&ccedil;&atilde;o');
+                    console.error('Erro ao buscar empresas');
                 }
             };
-            xhr.send(JSON.stringify({
-                codigoServico: codigo,
-                latitude: location.lat,
-                longitude: location.lng
-            }));
+            xhr.send(JSON.stringify({ codigoServico, latitude: location.lat, longitude: location.lng }));
+        }
+
+        function moveToLocation(lat, lng, name, price) {
+            const map = markers[name];
+            map.setLatLng([lat, lng]);
+            map.openPopup();
         }
 
         function updateBreadcrumb() {
             breadcrumb.innerHTML = '';
-            historyStack.forEach((item, index) => {
-                breadcrumb.innerHTML += `<a href="javascript:goToLevel(${index + 1})">${item.text}</a>`;
-                if (index < historyStack.length - 1) {
-                    breadcrumb.innerHTML += ' > ';
-                }
+            historyStack.forEach((step, index) => {
+                const link = document.createElement('a');
+                link.textContent = step.text;
+                link.onclick = () => goToStep(index);
+                breadcrumb.appendChild(link);
             });
         }
 
-        function goToLevel(level) {
-            while (currentLevel > level) {
-                goBack();
-            }
+        function goToStep(index) {
+            historyStack.splice(index + 1);
+            currentLevel = historyStack[historyStack.length - 1].level;
+            updateBreadcrumb();
+            updateBackButton();
+            loadOptions(currentLevel, historyStack[currentLevel - 1].id);
         }
 
         function goBack() {
-            if (currentLevel > 1) {
-                document.getElementById(`level-${currentLevel}`).remove();
-                currentLevel--;
+            if (historyStack.length > 0) {
                 historyStack.pop();
-                finalCodigoServico = historyStack[historyStack.length - 1]?.codigoServico || null;
-                document.getElementById(`level-${currentLevel}`).classList.add('active');
+                currentLevel--;
                 updateBreadcrumb();
                 updateBackButton();
+                loadOptions(currentLevel, historyStack[historyStack.length - 1]?.id);
             }
         }
 
         function updateBackButton() {
             const backButton = document.getElementById('back-button');
-            backButton.classList.toggle('active', currentLevel > 1);
-        }
-
-        let map;
-
-        function initMap() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    userLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-
-                    map = L.map('map').setView([userLocation.lat, userLocation.lng], 12);
-
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 18,
-                    }).addTo(map);
-
-                    const userMarker = L.marker([userLocation.lat, userLocation.lng]).addTo(map)
-                        .bindPopup("Sua localiza&ccedil;&atilde;o")
-                        .openPopup();
-
-                }, function() {
-                    console.error('N�o foi poss�vel obter a localiza��o.');
-                    userLocation = { lat: -27.641099533491374, lng: -48.67891214274231 }; // Centro de Palhoça
-                    map = L.map('map').setView([userLocation.lat, userLocation.lng], 12);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 18,
-                    }).addTo(map);
-                    });
-            }
-        }
-
-        function centralizarNoMapa(lat, lng) {
-            map.setView([lat, lng], 14);
-        }
-
-        function adicionarMarcadores(empresas) {
-            empresas.forEach(empresa => {
-                const marker = L.marker([empresa.latitude, empresa.longitude]).addTo(map)
-                    .bindPopup(`${empresa.company}<br>Pre&ccedil;o: ${empresa.price}`)
-                    .openPopup();
-                    
-                markers[empresa.company] = marker;
-            });
+            backButton.style.display = historyStack.length > 0 ? 'block' : 'none';
         }
 
         function showLoader() {
@@ -434,7 +379,31 @@
             document.getElementById('loader').style.display = 'none';
         }
 
-        initMap();
+        function initMap() {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                const map = L.map('map').setView([userLocation.lat, userLocation.lng], 13);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                // Define o marcador do usuário
+                const userMarker = L.marker([userLocation.lat, userLocation.lng]).addTo(map);
+                userMarker.bindPopup("<b>Você está aqui!</b>").openPopup();
+
+                // Função para adicionar marcadores de empresas ao mapa
+                function addMarker(lat, lng, name, price) {
+                    const marker = L.marker([lat, lng]).addTo(map);
+                    marker.bindPopup(`<b>${name}</b><br>Preço: ${price}`);
+                    markers[name] = marker;
+                }
+            });
+        }
     </script>
 </body>
 </html>
