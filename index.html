@@ -151,8 +151,7 @@
         pointer-events: none; /* Impede interação geral com o overlay */
     }
 
-    #overlay .organogram,
-    #overlay .button-group, 
+    #overlay .organogram, 
     #overlay .back-button,
     #overlay .breadcrumb, 
     #overlay .results-container {
@@ -230,8 +229,8 @@
     
             <!-- Grupo de botões reduzidos e organizados -->
             <div class="button-group">
-                <button id="back-button" onclick="goBack()">Voltar</button>
-                <button onclick="showResults()">Resultados</button>
+                <button id="back-button" class="back-button" onclick="goBack()">Voltar</button>
+                <button class="back-button" onclick="showResults()">Resultados</button>
             </div>
     
             <!-- Resultados e carregamento -->
